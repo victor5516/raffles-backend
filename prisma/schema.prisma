@@ -1,0 +1,97 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum CurrencyType {
+  USD
+  VES
+}
+
+enum RaffleStatus {
+  draft
+  active
+  closed
+}
+
+enum PurchaseStatus {
+  pending
+  verified
+  rejected
+}
+
+model Admin {
+  uid           String    @id @default(cuid())
+  email         String    @unique
+  full_name     String
+  password_hash String
+  created_at    DateTime  @default(now())
+}
+
+model Customer {
+  uid          String     @id @default(cuid())
+  national_id  String     @unique
+  full_name    String
+  email        String
+  phone        String?
+  created_at   DateTime   @default(now())
+  purchases    Purchase[]
+}
+
+model Raffle {
+  uid            String          @id @default(cuid())
+  title          String
+  description    String?
+  digits_length  Int
+  ticket_price   Decimal
+  total_tickets  Int
+  image_url      String?
+  deadline       DateTime
+  status         RaffleStatus    @default(draft)
+  created_at     DateTime        @default(now())
+  purchases      Purchase[]
+  tickets        Ticket[]
+}
+
+model PaymentMethod {
+  uid                    String    @id @default(cuid())
+  name                   String    @unique
+  image_url              String?
+  payment_data           Json
+  minimum_payment_amount Decimal
+  currency               CurrencyType
+  purchases              Purchase[]
+}
+
+model Purchase {
+  uid                    String          @id @default(cuid())
+  raffle                 Raffle          @relation(fields: [raffleId], references: [uid])
+  raffleId               String
+  customer               Customer        @relation(fields: [customerId], references: [uid])
+  customerId             String
+  paymentMethod          PaymentMethod   @relation(fields: [paymentMethodId], references: [uid])
+  paymentMethodId        String
+  ticket_quantity        Int
+  payment_screenshot_url String
+  bank_reference         String
+  status                 PurchaseStatus  @default(pending)
+  submitted_at           DateTime        @default(now())
+  verified_at            DateTime?
+  tickets                Ticket[]
+}
+
+model Ticket {
+  uid           String    @id @default(cuid())
+  raffle        Raffle    @relation(fields: [raffleId], references: [uid])
+  raffleId      String
+  purchase      Purchase? @relation(fields: [purchaseId], references: [uid])
+  purchaseId    String?
+  ticket_number Int
+  assigned_at   DateTime  @default(now())
+
+  @@unique([raffleId, ticket_number])
+}
