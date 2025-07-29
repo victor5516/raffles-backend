@@ -1,0 +1,24 @@
+flowchart TD
+    A[Start] --> B[User selects an active raffle]
+    B --> C[Purchase view is displayed: Payment methods, ticket quantity input, and user form]
+    C --> D[User fills out the form]
+    D --> D1[Form fields:
+- National ID
+- Full name
+- Email
+- Phone/Whatsapp
+- Bank transfer screenshot
+- Bank reference number
+- Number of tickets
+]
+    D1 --> E[User submits form after making manual payment]
+    E --> F[System saves data and sets status to In Process]
+    F --> G[Admin manually verifies payment]
+
+    G -->|Valid payment| H[Randomly assign available ticket numbers]
+    H --> I[User is notified via Email and Whatsapp]
+    I --> J[End: Purchase confirmed]
+
+    G -->|Invalid payment or error| K[Admin rejects the purchase]
+    K --> L[User is notified of rejection]
+    L --> M[End: Purchase rejected]
