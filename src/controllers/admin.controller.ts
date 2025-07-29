@@ -1,16 +1,10 @@
 import { Request, Response } from 'express';
 import { prisma } from '../prisma/client';
-import { z } from 'zod';
-import { validate } from '../middleware/validate.middleware';
-import { generateAccessToken, hashPassword, comparePasswords } from '../utils/crypto';
-
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
+import { generateAccessToken, comparePasswords } from '../utils/crypto';
+import { adminLoginValidator } from '../middleware/validators/admin.validator';
 
 export const adminLogin = [
-  validate(loginSchema),
+  adminLoginValidator,
   async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const admin = await prisma.admin.findUnique({ where: { email } });

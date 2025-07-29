@@ -1,29 +1,13 @@
 import { Request, Response } from 'express';
 import { Prisma, PurchaseStatus } from '@prisma/client';
 import { prisma } from '../prisma/client';
-import { z } from 'zod';
-import { validate } from '../middleware/validate.middleware';
-
-const purchaseSchema = z.object({
-  raffleId: z.string().cuid(),
-  paymentMethodId: z.string().cuid(),
-  ticket_quantity: z.number().int().positive(),
-  payment_screenshot_url: z.string().url(),
-  bank_reference: z.string().min(1),
-  customer: z.object({
-    national_id: z.string().min(1),
-    full_name: z.string().min(1),
-    email: z.string().email(),
-    phone: z.string().optional(),
-  }),
-});
-
-const updatePurchaseSchema = z.object({
-  status: z.nativeEnum(PurchaseStatus),
-});
+import {
+  createPurchaseValidator,
+  updatePurchaseValidator,
+} from '../middleware/validators/purchase.validator';
 
 export const createPurchase = [
-  validate(purchaseSchema),
+  createPurchaseValidator,
   async (req: Request, res: Response) => {
     const {
       raffleId,
@@ -119,7 +103,7 @@ export const getPurchaseByUid = async (req: Request, res: Response) => {
 };
 
 export const updatePurchaseStatus = [
-  validate(updatePurchaseSchema),
+  updatePurchaseValidator,
   async (req: Request, res: Response) => {
     const { uid } = req.params;
     const { status } = req.body;

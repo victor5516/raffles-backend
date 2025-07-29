@@ -1,25 +1,14 @@
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../prisma/client';
-import { z } from 'zod';
-import { validate } from '../middleware/validate.middleware';
+import {
+  createRaffleValidator,
+  updateRaffleValidator,
+} from '../middleware/validators/raffle.validator';
 import { RaffleStatus } from '@prisma/client';
 
-const raffleSchema = z.object({
-  title: z.string().min(1),
-  description: z.string().optional(),
-  digits_length: z.number().int().positive(),
-  ticket_price: z.number().positive(),
-  total_tickets: z.number().int().positive(),
-  image_url: z.string().url().optional(),
-  deadline: z.string().datetime(),
-  status: z.nativeEnum(RaffleStatus).optional(),
-});
-
-const updateRaffleSchema = raffleSchema.partial();
-
 export const createRaffle = [
-  validate(raffleSchema),
+  createRaffleValidator,
   async (req: Request, res: Response) => {
     try {
       const raffle = await prisma.raffle.create({
@@ -67,7 +56,7 @@ export const getRaffleByUid = async (req: Request, res: Response) => {
 };
 
 export const updateRaffle = [
-  validate(updateRaffleSchema),
+  updateRaffleValidator,
   async (req: Request, res: Response) => {
     try {
       const { uid } = req.params;

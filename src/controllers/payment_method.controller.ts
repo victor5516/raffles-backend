@@ -1,22 +1,13 @@
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../prisma/client';
-import { z } from 'zod';
-import { validate } from '../middleware/validate.middleware';
-import { CurrencyType } from '@prisma/client';
-
-const paymentMethodSchema = z.object({
-  name: z.string().min(1),
-  image_url: z.string().url().optional(),
-  payment_data: z.any(),
-  minimum_payment_amount: z.string().min(1),
-  currency: z.nativeEnum(CurrencyType),
-});
-
-const updatePaymentMethodSchema = paymentMethodSchema.partial();
+import {
+  createPaymentMethodValidator,
+  updatePaymentMethodValidator,
+} from '../middleware/validators/payment_method.validator';
 
 export const createPaymentMethod = [
-  validate(paymentMethodSchema),
+  createPaymentMethodValidator,
   async (req: Request, res: Response) => {
     try {
       const { name, image_url, payment_data, minimum_payment_amount, currency } = req.body;
@@ -79,7 +70,7 @@ export const getPaymentMethodByUid = [async (req: Request, res: Response) => {
 }];
 
 export const updatePaymentMethod = [
-  validate(updatePaymentMethodSchema),
+  updatePaymentMethodValidator,
   async (req: Request, res: Response) => {
     try {
       const { uid } = req.params;
