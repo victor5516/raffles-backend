@@ -14,11 +14,6 @@ const raffleSchema: Schema = {
         isString: true,
         optional: true,
     },
-    digits_length: {
-        in: ["body"],
-        isInt: true,
-        errorMessage: "La longitud de los digitos es requerida",
-    },
     ticket_price: {
         in: ["body"],
         isFloat: {
@@ -58,11 +53,6 @@ const updateRaffleSchema: Schema = {
         isString: true,
         optional: true,
     },
-    digits_length: {
-        in: ["body"],
-        isInt: true,
-        optional: true,
-    },
     ticket_price: {
         in: ["body"],
         isFloat: {
@@ -70,12 +60,12 @@ const updateRaffleSchema: Schema = {
                 min: 0
             }
         },
-        optional: false,
+        optional: true,
     },
     total_tickets: {
         in: ["body"],
         isInt: true,
-        optional: false,
+        optional: true,
     },
     image_url: {
         in: ["body"],

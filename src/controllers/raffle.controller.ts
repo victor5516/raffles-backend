@@ -45,8 +45,23 @@ export const createRaffle = [
 
 export const getRaffles = async (_req: Request, res: Response) => {
   try {
-    const raffles = await prisma.raffle.findMany();
-    res.status(200).json(raffles);
+    // calculate total tickets sold
+    const raffles = await prisma.raffle.findMany({
+      include: {
+        _count: {
+          select: {
+            tickets: true,
+          },
+        },
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
+    });
+    res.status(200).json(raffles.map((raffle) => ({
+      ...raffle,
+      tickets_sold: raffle._count.tickets,
+    })));
   } catch (error) {
     res.status(500).json({
       message: 'Error retrieving raffles',
@@ -75,13 +90,24 @@ export const getRaffleByUid = async (req: Request, res: Response) => {
 };
 
 export const updateRaffle = [
+  upload.single('image'),
   updateRaffleValidator,
   async (req: Request, res: Response) => {
     try {
       const { uid } = req.params;
+      const { ...raffleData } = req.body;
+      if (req.file) {
+        raffleData.image_url = `${baseUrl}/uploads/${req.file.filename}`;
+      }
       const raffle = await prisma.raffle.update({
         where: { uid },
-        data: req.body,
+        data: {
+          ...raffleData,
+          deadline: new Date(raffleData.deadline),
+          digits_length: parseInt(raffleData.digits_length, 10),
+          ticket_price: parseFloat(raffleData.ticket_price),
+          total_tickets: parseInt(raffleData.total_tickets, 10),
+        },
       });
       res.status(200).json(raffle);
     } catch (error) {

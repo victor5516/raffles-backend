@@ -14,7 +14,7 @@ const router = Router();
 router.post('/', [verifyToken, ...createRaffle]);
 router.get('/', getRaffles);
 router.get('/:uid', getRaffleByUid);
-router.put('/:uid', [verifyToken], updateRaffle);
+router.put('/:uid', [verifyToken, ...updateRaffle]);
 router.delete('/:uid', [verifyToken], deleteRaffle);
 
 export default router;

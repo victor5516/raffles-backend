@@ -17,6 +17,7 @@
   "scripts": {
     "create:admin": "ts-node scripts/createAdmin.ts",
     "prisma": "prisma",
+    "prisma:migrate": "prisma migrate dev",
     "dev": "nodemon src/app.ts",
     "start": "node dist/app.js"
   },

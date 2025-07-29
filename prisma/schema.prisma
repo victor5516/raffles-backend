@@ -46,7 +46,7 @@ model Raffle {
   uid            String          @id @default(cuid())
   title          String
   description    String?
-  digits_length  Int
+  digits_length  Int?
   ticket_price   Decimal
   total_tickets  Int
   image_url      String?
