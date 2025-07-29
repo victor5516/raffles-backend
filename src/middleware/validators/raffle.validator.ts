@@ -33,11 +33,6 @@ const raffleSchema: Schema = {
         isInt: true,
         errorMessage: "El total de tickets es requerido",
     },
-    image_url: {
-        in: ["body"],
-        isURL: true,
-        optional: true,
-    },
     deadline: {
         in: ["body"],
         isISO8601: true,
@@ -75,12 +70,12 @@ const updateRaffleSchema: Schema = {
                 min: 0
             }
         },
-        optional: true,
+        optional: false,
     },
     total_tickets: {
         in: ["body"],
         isInt: true,
-        optional: true,
+        optional: false,
     },
     image_url: {
         in: ["body"],

@@ -7,10 +7,11 @@ import {
   updateRaffle,
 } from '../controllers/raffle.controller';
 import { verifyToken } from '../middleware/auth.middleware';
+import { upload } from '../middleware/upload.middleware';
 
 const router = Router();
 
-router.post('/', [verifyToken], createRaffle);
+router.post('/', [verifyToken, ...createRaffle]);
 router.get('/', getRaffles);
 router.get('/:uid', getRaffleByUid);
 router.put('/:uid', [verifyToken], updateRaffle);

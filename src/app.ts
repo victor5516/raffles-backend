@@ -25,6 +25,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.json());
 
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 // Logging and debugging middlewares
 app.use(morganMiddleware);
 app.use(debugRequestMiddleware);

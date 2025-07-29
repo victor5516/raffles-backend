@@ -5,17 +5,36 @@ import {
   createRaffleValidator,
   updateRaffleValidator,
 } from '../middleware/validators/raffle.validator';
-import { RaffleStatus } from '@prisma/client';
+import fs from 'fs';
+import { upload } from '../middleware/upload.middleware';
+const baseUrl = process.env.BASE_URL;
 
 export const createRaffle = [
+  upload.single('image'),
   createRaffleValidator,
   async (req: Request, res: Response) => {
     try {
+      const { ...raffleData } = req.body;
+
+      if (req.file) {
+        raffleData.image_url = `${baseUrl}/uploads/${req.file.filename}`;
+      }
+
       const raffle = await prisma.raffle.create({
-        data: req.body,
+        data: {
+          ...raffleData,
+          deadline: new Date(raffleData.deadline),
+          digits_length: parseInt(raffleData.digits_length, 10),
+          ticket_price: parseFloat(raffleData.ticket_price),
+          total_tickets: parseInt(raffleData.total_tickets, 10),
+        },
       });
       res.status(201).json(raffle);
     } catch (error) {
+      //delete files if error
+      if (req.file) {
+        fs.unlinkSync(req.file.path);
+      }
       res.status(500).json({
         message: 'Error creating raffle',
         error: (error as Error).message,
