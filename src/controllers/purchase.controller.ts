@@ -5,18 +5,24 @@ import {
   createPurchaseValidator,
   updatePurchaseValidator,
 } from '../middleware/validators/purchase.validator';
-
+import { upload } from '../middleware/upload.middleware';
+import fs from 'fs';
+const baseUrl = process.env.BASE_URL;
 export const createPurchase = [
+  upload.single('payment_screenshot_url'),
   createPurchaseValidator,
   async (req: Request, res: Response) => {
     const {
       raffleId,
       paymentMethodId,
       ticket_quantity,
-      payment_screenshot_url,
       bank_reference,
       customer: customerData,
     } = req.body;
+
+    if (req.file) {
+      req.body.payment_screenshot_url = `${baseUrl}/uploads/${req.file.filename}`;
+    }
 
     try {
       const purchase = await prisma.$transaction(async (tx) => {
@@ -40,7 +46,7 @@ export const createPurchase = [
             raffleId,
             paymentMethodId,
             ticket_quantity,
-            payment_screenshot_url,
+            payment_screenshot_url: req.body.payment_screenshot_url,
             bank_reference,
             customerId: customer.uid,
           },
@@ -51,6 +57,9 @@ export const createPurchase = [
 
       res.status(201).json(purchase);
     } catch (error) {
+      if (req.file) {
+        fs.unlinkSync(req.file.path);
+      }
       res.status(500).json({
         message: 'Error creating purchase',
         error: (error as Error).message,
