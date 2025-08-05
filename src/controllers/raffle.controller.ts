@@ -7,6 +7,7 @@ import {
 } from '../middleware/validators/raffle.validator';
 import fs from 'fs';
 import { upload } from '../middleware/upload.middleware';
+import { calculatePercentage } from '../utils/helpers';
 const baseUrl = process.env.BASE_URL;
 
 export const createRaffle = [
@@ -61,6 +62,7 @@ export const getRaffles = async (_req: Request, res: Response) => {
     res.status(200).json(raffles.map((raffle) => ({
       ...raffle,
       tickets_sold: raffle._count.tickets,
+      percentage_sold: calculatePercentage(raffle.total_tickets, raffle._count.tickets),
     })));
   } catch (error) {
     res.status(500).json({
