@@ -68,16 +68,52 @@ export const createPurchase = [
   },
 ];
 
-export const getPurchases = async (_req: Request, res: Response) => {
+export const getPurchases = async (req: Request, res: Response) => {
   try {
-    const purchases = await prisma.purchase.findMany({
-      include: {
-        customer: true,
-        raffle: true,
-        paymentMethod: true,
-      },
+    const { raffleId } = req.query as { raffleId?: string }
+    const statusParam = (req.query.status as string) as PurchaseStatus | undefined
+    const nationalId = (req.query.nationalId as string) || undefined
+    const pageParam = (req.query.page as string) ?? '1'
+    const limitParam = (req.query.limit as string) ?? '20'
+    const page = Math.max(parseInt(pageParam, 10) || 1, 1)
+    const limitRaw = Math.max(parseInt(limitParam, 10) || 20, 1)
+    const limit = Math.min(limitRaw, 100)
+    const skip = (page - 1) * limit
+
+    const where: Prisma.PurchaseWhereInput = {
+      ...(raffleId ? { raffleId } : {}),
+      ...(statusParam ? { status: statusParam as PurchaseStatus } : {}),
+      ...(nationalId
+        ? {
+            customer: {
+              is: { national_id: { contains: nationalId, mode: 'insensitive' } },
+            },
+          }
+        : {}),
+    }
+
+    const [items, total] = await Promise.all([
+      prisma.purchase.findMany({
+        where,
+        include: {
+          customer: true,
+          raffle: true,
+          paymentMethod: true,
+        },
+        orderBy: { submitted_at: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.purchase.count({ where }),
+    ])
+
+    res.status(200).json({
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     });
-    res.status(200).json(purchases);
   } catch (error) {
     res.status(500).json({
       message: 'Error retrieving purchases',
