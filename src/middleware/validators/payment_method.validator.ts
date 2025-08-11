@@ -16,7 +16,7 @@ const paymentMethodSchema: Schema = {
     },
     payment_data: {
         in: ["body"],
-        isObject: true,
+        isString: true,
         errorMessage: "Los datos de pago son requeridos",
     },
     minimum_payment_amount: {
@@ -42,11 +42,6 @@ const updatePaymentMethodSchema: Schema = {
     image_url: {
         in: ["body"],
         isURL: true,
-        optional: true,
-    },
-    payment_data: {
-        in: ["body"],
-        isObject: true,
         optional: true,
     },
     minimum_payment_amount: {

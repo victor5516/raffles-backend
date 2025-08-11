@@ -17,9 +17,9 @@ export const createPurchase = [
       paymentMethodId,
       ticket_quantity,
       bank_reference,
-      customer: customerData,
+      customer,
     } = req.body;
-
+   const customerData = JSON.parse(customer);
     if (req.file) {
       req.body.payment_screenshot_url = `${baseUrl}/uploads/${req.file.filename}`;
     }
@@ -45,7 +45,7 @@ export const createPurchase = [
           data: {
             raffleId,
             paymentMethodId,
-            ticket_quantity,
+            ticket_quantity: +ticket_quantity,
             payment_screenshot_url: req.body.payment_screenshot_url,
             bank_reference,
             customerId: customer.uid,

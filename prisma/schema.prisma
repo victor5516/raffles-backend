@@ -95,3 +95,11 @@ model Ticket {
 
   @@unique([raffleId, ticket_number])
 }
+
+model Currency {
+  uid String @id @default(cuid())
+  name String @unique
+  symbol String @unique
+  value Decimal
+  created_at DateTime @default(now())
+}

@@ -5,23 +5,32 @@ import {
   createPaymentMethodValidator,
   updatePaymentMethodValidator,
 } from '../middleware/validators/payment_method.validator';
-
+import { upload } from '../middleware/upload.middleware';
+import fs from 'fs';
+const baseUrl = process.env.BASE_URL;
 export const createPaymentMethod = [
+  upload.single('image'),
   createPaymentMethodValidator,
   async (req: Request, res: Response) => {
     try {
-      const { name, image_url, payment_data, minimum_payment_amount, currency } = req.body;
+      const { name, payment_data, minimum_payment_amount, currency } = req.body;
+      if (req.file) {
+        req.body.image_url = `${baseUrl}/uploads/${req.file.filename}`;
+      }
       const paymentMethod = await prisma.paymentMethod.create({
         data: {
           name,
-          image_url,
-          payment_data,
+          image_url: req.body.image_url,
+          payment_data: payment_data ? JSON.parse(payment_data) : {},
           minimum_payment_amount,
           currency,
         },
       });
       res.status(201).json(paymentMethod);
     } catch (error) {
+      if (req.file) {
+        fs.unlinkSync(req.file.path);
+      }
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           return res.status(409).json({
@@ -37,6 +46,18 @@ export const createPaymentMethod = [
     }
   },
 ];
+// get all currency values
+export const getCurrencyValues = [async (_req: Request, res: Response) => {
+  try {
+    const currencyValues = await prisma.currency.findMany();
+    res.status(200).json(currencyValues);
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error retrieving currency values',
+      error: (error as Error).message,
+    });
+  }
+}];
 
 export const getPaymentMethods = [ async (_req: Request, res: Response) => {
   try {
@@ -70,16 +91,33 @@ export const getPaymentMethodByUid = [async (req: Request, res: Response) => {
 }];
 
 export const updatePaymentMethod = [
+  upload.single('image'),
   updatePaymentMethodValidator,
   async (req: Request, res: Response) => {
     try {
       const { uid } = req.params;
+      const { name, payment_data, minimum_payment_amount, currency } = req.body;
+
+      const updateData: any = {
+        name,
+        payment_data,
+        minimum_payment_amount,
+        currency,
+      };
+
+      if (req.file) {
+        updateData.image_url = `${baseUrl}/uploads/${req.file.filename}`;
+      }
+
       const paymentMethod = await prisma.paymentMethod.update({
         where: { uid },
-        data: req.body,
+        data: updateData,
       });
       res.status(200).json(paymentMethod);
     } catch (error) {
+      if (req.file) {
+        fs.unlinkSync(req.file.path);
+      }
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'

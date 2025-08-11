@@ -23,36 +23,11 @@ const purchaseSchema: Schema = {
         },
         errorMessage: "La cantidad de tickets es requerida",
     },
-    payment_screenshot_url: {
-        in: ["body"],
-        isURL: true,
-        errorMessage: "La url de la captura de pantalla es requerida",
-    },
     bank_reference: {
         in: ["body"],
         isString: true,
         errorMessage: "La referencia bancaria es requerida",
-    },
-    "customer.national_id": {
-        in: ["body"],
-        isString: true,
-        errorMessage: "La cedula del cliente es requerida",
-    },
-    "customer.full_name": {
-        in: ["body"],
-        isString: true,
-        errorMessage: "El nombre completo del cliente es requerido",
-    },
-    "customer.email": {
-        in: ["body"],
-        isEmail: true,
-        errorMessage: "El email del cliente es requerido",
-    },
-    "customer.phone": {
-        in: ["body"],
-        isString: true,
-        optional: true,
-    },
+    }
 }
 
 const updatePurchaseSchema: Schema = {
