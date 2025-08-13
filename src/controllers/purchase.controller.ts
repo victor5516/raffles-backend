@@ -175,7 +175,7 @@ export const updatePurchaseStatus = [
             verified_at: status === 'verified' ? new Date() : null,
           },
         });
-
+        let tickets: { ticket_number: number }[] = [];
         if (status === 'verified') {
           const { ticket_quantity, raffle } = purchase;
           const soldTickets = await tx.ticket.findMany({
@@ -210,6 +210,7 @@ export const updatePurchaseStatus = [
             throw new Error('Not enough tickets available.');
           }
 
+
           await tx.ticket.createMany({
             data: assignedNumbers.map((ticket_number) => ({
               raffleId: raffle.uid,
@@ -217,9 +218,22 @@ export const updatePurchaseStatus = [
               ticket_number,
             })),
           });
+
+          tickets = await tx.ticket.findMany({
+            where: {
+              purchaseId: purchase.uid
+            },
+            select: {
+              ticket_number: true
+            }
+          });
+
         }
 
-        return result;
+        return {
+          ...result,
+          tickets: tickets.map((t) => t.ticket_number)
+        };
       });
 
       res.status(200).json(updatedPurchase);
