@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'raffle-backend',
-      script: 'dist/app.js',
+      script: 'dist/src/app.js',
       instances: 'max',
       exec_mode: 'cluster',
       env: {
@@ -25,4 +25,4 @@ module.exports = {
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z'
     }
   ]
-};
+}

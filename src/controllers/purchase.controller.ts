@@ -73,6 +73,7 @@ export const getPurchases = async (req: Request, res: Response) => {
     const { raffleId } = req.query as { raffleId?: string }
     const statusParam = (req.query.status as string) as PurchaseStatus | undefined
     const nationalId = (req.query.nationalId as string) || undefined
+    const ticketNumberParam = (req.query.ticketNumber as string) || undefined
     const pageParam = (req.query.page as string) ?? '1'
     const limitParam = (req.query.limit as string) ?? '20'
     const page = Math.max(parseInt(pageParam, 10) || 1, 1)
@@ -87,6 +88,14 @@ export const getPurchases = async (req: Request, res: Response) => {
         ? {
             customer: {
               is: { national_id: { contains: nationalId, mode: 'insensitive' } },
+            },
+          }
+        : {}),
+      ...(ticketNumberParam
+        ? {
+            // Only purchases with an assigned ticket matching the number
+            tickets: {
+              some: { ticket_number: Number(ticketNumberParam) },
             },
           }
         : {}),
