@@ -7,7 +7,7 @@ import {
 } from '../middleware/validators/payment_method.validator';
 import { upload } from '../middleware/upload.middleware';
 import fs from 'fs';
-const baseUrl = process.env.BASE_URL;
+import { getBaseUrl } from '../utils/helpers';
 export const createPaymentMethod = [
   upload.single('image'),
   createPaymentMethodValidator,
@@ -15,6 +15,7 @@ export const createPaymentMethod = [
     try {
       const { name, payment_data, minimum_payment_amount, currency } = req.body;
       if (req.file) {
+        const baseUrl = getBaseUrl(req);
         req.body.image_url = `${baseUrl}/uploads/${req.file.filename}`;
       }
       const paymentMethod = await prisma.paymentMethod.create({
@@ -106,6 +107,7 @@ export const updatePaymentMethod = [
       };
 
       if (req.file) {
+        const baseUrl = getBaseUrl(req);
         updateData.image_url = `${baseUrl}/uploads/${req.file.filename}`;
       }
 

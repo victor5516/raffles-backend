@@ -7,7 +7,7 @@ import {
 } from '../middleware/validators/purchase.validator';
 import { upload } from '../middleware/upload.middleware';
 import fs from 'fs';
-const baseUrl = process.env.BASE_URL;
+import { getBaseUrl } from '../utils/helpers';
 export const createPurchase = [
   upload.single('payment_screenshot_url'),
   createPurchaseValidator,
@@ -21,6 +21,7 @@ export const createPurchase = [
     } = req.body;
    const customerData = JSON.parse(customer);
     if (req.file) {
+      const baseUrl = getBaseUrl(req);
       req.body.payment_screenshot_url = `${baseUrl}/uploads/${req.file.filename}`;
     }
 

@@ -7,8 +7,7 @@ import {
 } from '../middleware/validators/raffle.validator';
 import fs from 'fs';
 import { upload } from '../middleware/upload.middleware';
-import { calculatePercentage } from '../utils/helpers';
-const baseUrl = process.env.BASE_URL;
+import { calculatePercentage, getBaseUrl } from '../utils/helpers';
 
 export const createRaffle = [
   upload.single('image'),
@@ -18,6 +17,7 @@ export const createRaffle = [
       const { ...raffleData } = req.body;
 
       if (req.file) {
+        const baseUrl = getBaseUrl(req);
         raffleData.image_url = `${baseUrl}/uploads/${req.file.filename}`;
       }
 
@@ -99,6 +99,7 @@ export const updateRaffle = [
       const { uid } = req.params;
       const { ...raffleData } = req.body;
       if (req.file) {
+        const baseUrl = getBaseUrl(req);
         raffleData.image_url = `${baseUrl}/uploads/${req.file.filename}`;
       }
       const raffle = await prisma.raffle.update({
