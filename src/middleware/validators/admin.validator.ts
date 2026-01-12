@@ -12,7 +12,7 @@ const adminLoginSchema: Schema = {
         in: ["body"],
         isString: true,
         isLength: {
-            options: { min: 6 }
+            options: { min: 4, max: 20 }
         },
         errorMessage: "La contraseña es requerida y debe tener al menos 6 caracteres",
     },
